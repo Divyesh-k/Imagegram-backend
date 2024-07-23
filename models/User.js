@@ -7,9 +7,9 @@ const userSchema = new Schema({
   password: { type: String, required: true },
   bio: { type: String, default: "" },
   profilePicture: { type: String, default: "default_profile.png" },
-  followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  following: [{ type: Schema.Types.ObjectId, ref: "User" }],
   posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+  followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   likedPosts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
   saves: [{ type: Schema.Types.ObjectId, ref: "Saves" }],
   createdAt: { type: Date, default: Date.now }

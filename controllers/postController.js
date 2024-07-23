@@ -34,17 +34,15 @@ const createPost = async (req, res) => {
 const updatePost = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { caption, location, tags } = req.body;
+    const { caption, location, tags, imageUrl } = req.body;
     const updateData = { caption, location };
 
     if (tags) {
-      updateData.tags = tags.split(",").map((tag) => tag.trim());
+      updateData.tags = tags;
     }
 
-    if (req.file) {
-      updateData.imageUrl = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
-    }
-    console.log("why are we here");
+    updateData.imageUrl = imageUrl;
+
     console.log(updateData);
     const post = await Post.findByIdAndUpdate(id, updateData, { new: true });
 
@@ -78,7 +76,7 @@ const deletePost = async (req, res) => {
 const getPostById = async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await Post.findById(id).populate("user").populate("comments");
+    const post = await Post.findById(id).populate("creator");
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
@@ -116,7 +114,9 @@ async function updateLikes(req, res) {
   }
 
   // Remove null values and invalid ObjectIds from likesArray
-  likesArray = likesArray.filter(id => id !== null && mongoose.Types.ObjectId.isValid(id));
+  likesArray = likesArray.filter(
+    (id) => id !== null && mongoose.Types.ObjectId.isValid(id)
+  );
 
   try {
     const session = await mongoose.startSession();
@@ -147,12 +147,12 @@ async function updateLikes(req, res) {
 
       // Remove postId from likedPosts of users who unliked the post
       await User.updateMany(
-        { 
+        {
           _id: { $nin: likesArray },
-          likedPosts: postId
+          likedPosts: postId,
         },
-        { 
-          $pull: { likedPosts: postId } 
+        {
+          $pull: { likedPosts: postId },
         },
         { session }
       );

@@ -28,14 +28,21 @@ const postSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-postSchema.post('save', async function(doc) {
-  if (doc.isNew) {  // Only run this for newly created documents
+postSchema.pre('save', async function(next) {
+  if (this.isNew) {  // Only run this for newly created documents
     const User = mongoose.model('User');
-    await User.findByIdAndUpdate(
-      doc.creator,
-      { $addToSet: { posts: doc._id } },
-      { new: true, useFindAndModify: false }
-    );
+    try {
+      await User.findByIdAndUpdate(
+        this.creator,
+        { $addToSet: { posts: this._id } },
+        { new: true, useFindAndModify: false }
+      );
+      next();
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
   }
 });
 

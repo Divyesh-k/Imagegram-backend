@@ -16,7 +16,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
       const userId = req.params.id;
-      const user = await User.findById(userId).populate('posts').populate('likedPosts').populate('saves');
+      const user = await User.findById(userId).populate('posts').populate('likedPosts').populate('saves').populate('following').populate('followers');
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -34,7 +34,26 @@ const createUser = async (req, res) => {
 
 // PUT update user
 const updateUser = async (req, res) => {
-    // Implement logic to update user by ID
+  try {
+    const userId = req.params.id; // Get user ID from request parameters
+    const { email, profilePicture, username, bio } = req.body; // Destructure the incoming request body
+
+    // Find the user by ID and update the details
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { email, profilePicture, username, bio },
+      { new: true, runValidators: true } // Return the updated document and run validation
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
 // DELETE user
