@@ -97,7 +97,7 @@ const getAllPosts = async (req, res) => {
         path: "likes.",
         select: "userId profilePicture", // Select only userId and profilePicture
       })
-      .sort({ createdAt: -1 });
+      // .sort({ createdAt: -1 });
     res.status(200).json(posts);
   } catch (err) {
     res
