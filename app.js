@@ -31,6 +31,7 @@ const postsRouter = require("./routes/postRoutes");
 const uploadRouter = require("./routes/uploadRoutes");
 const saveRouter = require("./routes/saveRoutes");
 const followRouter = require("./routes/followRoute")
+const storyRouter = require("./routes/storyRoutes");
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter); 
@@ -40,6 +41,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/upload', uploadRouter);
 app.use('/save', saveRouter);
 app.use('/follow' , followRouter);
+app.use("/stories", storyRouter);
 
 // Error handling
 app.use((err, req, res, next) => {

@@ -12,9 +12,9 @@ const userSchema = new Schema({
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   likedPosts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
   saves: [{ type: Schema.Types.ObjectId, ref: "Saves" }],
+  stories: [{ type: Schema.Types.ObjectId, ref: "Story" }], // Added reference to UserStory
   createdAt: { type: Date, default: Date.now }
 });
-
 
 module.exports = mongoose.model('User', userSchema);
 

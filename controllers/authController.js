@@ -54,7 +54,7 @@ const login = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
     try {
-      let currentUser = await User.findById(req.user).populate('posts').populate('likedPosts').populate('saves').populate('followers').populate('following');
+      let currentUser = await User.findById(req.user).populate('posts').populate('likedPosts').populate('saves').populate('followers').populate('following').populate('stories');
   
       if (!currentUser) {
         return res.status(404).json({ message: 'User not found' });
