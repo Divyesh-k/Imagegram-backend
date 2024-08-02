@@ -4,7 +4,7 @@ const User = require('../models/User');
 // GET all users in descending order of createdAt
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().sort({ createdAt: -1 }); 
+        const users = await User.find().sort({ createdAt: -1 }).populate('stories'); 
         res.json(users);
     } catch (err) {
         res.status(500).json({ message: err.message });

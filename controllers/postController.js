@@ -91,13 +91,11 @@ const getPostById = async (req, res) => {
 // Get all posts
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate("creator")
-      .populate({
-        path: "likes.",
-        select: "userId profilePicture", // Select only userId and profilePicture
-      })
-      // .sort({ createdAt: -1 });
+    const posts = await Post.find().populate("creator").populate({
+      path: "likes.",
+      select: "userId profilePicture", // Select only userId and profilePicture
+    });
+    // .sort({ createdAt: -1 });
     res.status(200).json(posts);
   } catch (err) {
     res
