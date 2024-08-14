@@ -5,9 +5,15 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require('cors');
 const path = require('path');
+const initializeSocket = require('./socket');
+const http = require('http')
 
 // Load environment variables from .env file
 dotenv.config();
+
+// Initialize socket.io
+const server = http.createServer(app);
+const io = initializeSocket(server);
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGODB_URI; // Use environment variable
@@ -23,25 +29,10 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-const authRouter = require("./routes/authRoutes");
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/userRoutes");
-const postsRouter = require("./routes/postRoutes"); 
-const uploadRouter = require("./routes/uploadRoutes");
-const saveRouter = require("./routes/saveRoutes");
-const followRouter = require("./routes/followRoute")
-const storyRouter = require("./routes/storyRoutes");
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter); 
-app.use('/auth', authRouter);
-app.use("/posts", postsRouter);
+const indexRouter = require('./routes/index');
+app.use('/', indexRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/upload', uploadRouter);
-app.use('/save', saveRouter);
-app.use('/follow' , followRouter);
-app.use("/stories", storyRouter);
 
 // Error handling
 app.use((err, req, res, next) => {
