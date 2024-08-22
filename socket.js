@@ -1,33 +1,56 @@
-// socket.js
-const socketIo = require('socket.io');
-const { sendMessage } = require('./controllers/chatController');
+const Chat = require("./models/Chat");
+const {sendMessage , markMessageAsRead} = require("./controllers/chatController");
 
-const initializeSocket = (server) => {
-  const io = socketIo(server);
+module.exports = (io) => {
 
-  io.on('connection', (socket) => {
-    console.log('New client connected');
+    const socketToIdMap = new Map();
 
-    socket.on('join', ({ userId }) => {
-      socket.join(userId);
-    });
+  io.on("connection", (socket) => {
 
-    socket.on('sendMessage', async (data) => {
+    socket.on("register" , (socketData) => {
+      if(socketData.userId != null && socketData.socketId != null){
+        socketToIdMap.set(socketData.userId, socket.id);
+      }
+    })
+
+    socket.on("set user" , (userId) => {
+        console.log(userId);
+        socketToIdMap.set(userId, socket.id);
+    })
+
+    socket.on('chat message', async (msg) => {
       try {
-        const newMessage = await sendMessage(data);
-        io.to(data.receiver).emit('messageReceived', newMessage);
-        io.to(data.sender).emit('messageReceived', newMessage);
+        const savedMessage = await sendMessage(msg);
+        const receiverSocketId = socketToIdMap.get(msg.receiver);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('chat message', savedMessage);
+        }
+        socket.emit('message sent', savedMessage);
       } catch (error) {
-        console.error('Error sending message:', error);
+        socket.emit('message error', { error: 'Failed to send message' });
       }
     });
 
-    socket.on('disconnect', () => {
-      console.log('Client disconnected');
+    socket.on('mark as read', async (messageId) => {
+      try {
+        const updatedMessage = await markMessageAsRead(messageId);
+        const senderSocketId = socketToIdMap.get(updatedMessage.sender.toString());
+        if(senderSocketId){
+          io.to(senderSocketId).emit('message read', updatedMessage._id);
+        }
+      }catch (error) {
+        socket.emit('message error', { error: 'Failed to mark message as read' });
+      }
+    });
+
+
+    socket.on("disconnect", () => {
+      for(let [userId , socketId] of socketToIdMap){
+        if(socketId === socket.id){
+          socketToIdMap.delete(userId);
+          break;
+        }
+      }
     });
   });
-
-  return io;
 };
-
-module.exports = initializeSocket;

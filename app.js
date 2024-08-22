@@ -1,19 +1,26 @@
-// app.js
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require('cors');
 const path = require('path');
-const initializeSocket = require('./socket');
-const http = require('http')
+const http = require('http');
+const socketIo = require('socket.io');
+const initializeSocket = require('./socket'); // Import socket.js
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Initialize socket.io
+// Initialize HTTP server and Socket.IO
 const server = http.createServer(app);
-const io = initializeSocket(server);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+  }
+});
+
+// Initialize Socket.IO with the server
+initializeSocket(io);
 
 // Connect to MongoDB
 const mongoURI = process.env.MONGODB_URI; // Use environment variable
@@ -29,7 +36,6 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 const indexRouter = require('./routes/index');
 app.use('/', indexRouter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -42,6 +48,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

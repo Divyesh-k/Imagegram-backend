@@ -60,21 +60,21 @@ const getCurrentUser = async (req, res) => {
         return res.status(404).json({ message: 'User not found' });
       }
   
-      console.log('User before population:', JSON.stringify(currentUser, null, 2));
+      // console.log('User before population:', JSON.stringify(currentUser, null, 2));
   
       // Check if posts exist but aren't populated
       if (currentUser.posts.length > 0 && typeof currentUser.posts[0] !== 'object') {
-        console.log('Posts exist but are not populated');
+        // console.log('Posts exist but are not populated');
         await currentUser.populate('posts');
       }
   
       // Check if likedPosts exist but aren't populated
       if (currentUser.likedPosts.length > 0 && typeof currentUser.likedPosts[0] !== 'object') {
-        console.log('Liked posts exist but are not populated');
+        // console.log('Liked posts exist but are not populated');
         await currentUser.populate('likedPosts');
       }
   
-      console.log('User after population:', JSON.stringify(currentUser, null, 2));
+      // console.log('User after population:', JSON.stringify(currentUser, null, 2));
   
       res.json(currentUser);
     } catch (err) {
